@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crypto Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 10px #00000033;
+    }
+    .card h2 {
+      margin: 0 0 10px;
+    }
+    .price {
+      font-size: 1.5em;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 Real-Time Crypto Dashboard</h1>
+  <div class="dashboard" id="dashboard">
+    <!-- Cards will be inserted here -->
+  </div>
+
+  <script>
+    const coins = ['bitcoin', 'ethereum', 'solana', 'dogecoin', 'cardano'];
+    const dashboard = document.getElementById('dashboard');
+
+    function createCard(id, name) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.id = id;
+      card.innerHTML = `
+        <h2>${name.toUpperCase()}</h2>
+        <div class="price" id="${id}-price">Loading...</div>
+      `;
+      return card;
+    }
+
+    function updatePrices() {
+      fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coins.join(',')}&vs_currencies=usd`)
+        .then(response => response.json())
+        .then(data => {
+          coins.forEach(coin => {
+            const priceElement = document.getElementById(`${coin}-price`);
+            if (priceElement) {
+              priceElement.textContent = `$${data[coin].usd.toLocaleString()}`;
+            }
+          });
+        })
+        .catch(err => {
+          console.error("Error fetching prices:", err);
+        });
+    }
+
+    // Initialize
+    coins.forEach(coin => {
+      dashboard.appendChild(createCard(coin, coin));
+    });
+
+    updatePrices();
+    setInterval(updatePrices, 10000); // Update every 10s
+  </script>
+</body>
+</html>
